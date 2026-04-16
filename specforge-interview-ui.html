@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpecForge — Interview UI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f5f5f3;
+      --color-background-tertiary: #efefec;
+      --color-text-primary: #1a1a18;
+      --color-text-secondary: #6b6b68;
+      --color-border-tertiary: rgba(0,0,0,0.12);
+      --color-border-secondary: rgba(0,0,0,0.22);
+      --color-border-primary: rgba(0,0,0,0.35);
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', monospace;
+      --green: #1D9E75;
+      --green-light: #E1F5EE;
+      --green-dark: #0F6E56;
+      --blue-light: #E6F1FB;
+      --blue: #185FA5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-background-primary: #1e1e1c;
+        --color-background-secondary: #2a2a28;
+        --color-background-tertiary: #141412;
+        --color-text-primary: #f0f0ec;
+        --color-text-secondary: #9a9a96;
+        --color-border-tertiary: rgba(255,255,255,0.1);
+        --color-border-secondary: rgba(255,255,255,0.18);
+        --color-border-primary: rgba(255,255,255,0.28);
+        --green-light: #04342C;
+        --blue-light: #042C53;
+        --blue: #85B7EB;
+      }
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-background-tertiary);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      color: var(--color-text-primary);
+    }
+
+    .sf-wrap { max-width: 720px; margin: 0 auto; }
+
+    .sf-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; }
+    .sf-logo { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+    .sf-logo span { color: var(--color-text-secondary); font-weight: 400; }
+
+    .sf-phase-nav { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .sf-phase-btn { font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+    .sf-phase-btn:hover { background: var(--color-background-secondary); }
+    .sf-phase-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+    .sf-phase-btn.done { border-color: var(--green); color: var(--green); }
+
+    .sf-section { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+    .sf-section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
+
+    .sf-field { margin-bottom: 1rem; }
+    .sf-field:last-child { margin-bottom: 0; }
+    .sf-label { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; display: block; }
+    .sf-hint { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 8px; display: block; line-height: 1.5; }
+
+    textarea, input[type="text"] { width: 100%; padding: 8px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); font-size: 14px; font-family: var(--font-sans); resize: vertical; outline: none; }
+    textarea:focus, input[type="text"]:focus { border-color: var(--color-border-primary); }
+    textarea { min-height: 72px; line-height: 1.5; }
+
+    .sf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sf-chip { font-size: 13px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); cursor: pointer; transition: all 0.15s; }
+    .sf-chip:hover { background: var(--color-background-secondary); }
+    .sf-chip.selected { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+
+    .sf-actions { display: flex; gap: 8px; margin-top: 1.5rem; align-items: center; }
+    .sf-btn-primary { padding: 8px 18px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-primary); background: var(--color-text-primary); color: var(--color-background-primary); font-size: 14px; font-weight: 500; cursor: pointer; }
+    .sf-btn-primary:hover { opacity: 0.85; }
+    .sf-btn-secondary { padding: 8px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-primary); font-size: 14px; cursor: pointer; }
+    .sf-btn-secondary:hover { background: var(--color-background-secondary); }
+    .sf-btn-green { padding: 9px 18px; border-radius: var(--border-radius-md); border: none; background: var(--green); color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .sf-btn-green:hover { opacity: 0.88; }
+
+    .sf-progress { flex: 1; height: 3px; background: var(--color-border-tertiary); border-radius: 2px; overflow: hidden; }
+    .sf-progress-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; }
+
+    .sf-output { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; font-size: 13px; color: var(--color-text-primary); font-family: var(--font-mono); white-space: pre-wrap; max-height: 260px; overflow-y: auto; line-height: 1.6; }
+
+    .sf-copy-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .sf-copy-label { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); }
+    .sf-copy-confirm { font-size: 12px; color: var(--green); margin-left: 8px; opacity: 0; transition: opacity 0.3s; }
+    .sf-copy-confirm.show { opacity: 1; }
+
+    .sf-tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+    .sf-tag-blue { background: var(--blue-light); color: var(--blue); }
+    .sf-tag-green { background: var(--green-light); color: var(--green-dark); }
+
+    .sf-step { display: flex; gap: 12px; margin-bottom: 1rem; align-items: flex-start; }
+    .sf-step:last-child { margin-bottom: 0; }
+    .sf-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--color-text-primary); color: var(--color-background-primary); font-size: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .sf-step-body { flex: 1; }
+    .sf-step-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+    .sf-step-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.5; }
+
+    .sf-prompt-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 0.875rem 1rem; font-size: 13px; color: var(--color-text-primary); font-family: var(--font-mono); line-height: 1.6; margin-top: 8px; white-space: pre-wrap; }
+
+    .sf-divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1rem 0; }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+<div class="sf-wrap">
+
+  <div class="sf-header">
+    <div class="sf-logo">SpecForge <span>/ Interview UI</span></div>
+    <div style="flex:1"></div>
+    <span class="sf-tag sf-tag-blue" id="mode-badge">Mode: Greenfield</span>
+  </div>
+
+  <div class="sf-phase-nav" id="phase-nav"></div>
+  <div id="phase-content"></div>
+
+  <div class="sf-actions">
+    <button class="sf-btn-secondary" id="btn-back" onclick="prevPhase()">← Back</button>
+    <div class="sf-progress"><div class="sf-progress-fill" id="progress-fill"></div></div>
+    <button class="sf-btn-primary" id="btn-next" onclick="nextPhase()">Next →</button>
+  </div>
+
+</div>
+
+<script>
+const PHASES = [
+  { id: 'setup',     label: 'Setup' },
+  { id: 'mission',   label: 'Mission' },
+  { id: 'techstack', label: 'Tech stack' },
+  { id: 'roadmap',   label: 'Roadmap' },
+  { id: 'feature',   label: 'Feature spec' },
+  { id: 'export',    label: 'Export' },
+];
+
+let currentPhase = 0;
+let completedPhases = new Set();
+let data = {
+  mode: 'greenfield', exportTarget: 'claudecode',
+  product: '', audience: '', problem: '', outOfScope: '', context: '',
+  techPrefs: '', integrations: '', constraints: '',
+  database: '', auth: [], responsive: '',
+  features: '', firstFeature: '', dependencies: '', roadmapGranularity: '',
+  featureName: '', featureTrigger: '', userFlow: '', edgeCases: '',
+  featureStates: [], componentTypes: [],
+  techConstraints: '', dataSchema: '', performance: '', accessibility: '',
+  happyPath: '', failureCases: '', doneWhen: '',
+};
+
+function chip(value, label, group, multi) {
+  const sel = multi ? (data[group]||[]).includes(value) : data[group] === value;
+  return `<button class="sf-chip${sel?' selected':''}" onclick="toggleChip('${group}','${value}',${multi})">${label}</button>`;
+}
+
+function toggleChip(group, value, multi) {
+  if (multi) {
+    if (!data[group]) data[group] = [];
+    const i = data[group].indexOf(value);
+    i >= 0 ? data[group].splice(i,1) : data[group].push(value);
+  } else {
+    data[group] = value;
+    if (group === 'mode') {
+      document.getElementById('mode-badge').textContent =
+        'Mode: ' + ({greenfield:'Greenfield',featureonly:'Feature only',retrofit:'Retrofit'}[value]||value);
+    }
+  }
+  renderPhase();
+}
+
+function field(key, label, hint, type='text', rows=2) {
+  const h = hint ? `<span class="sf-hint">${hint}</span>` : '';
+  if (type === 'textarea') {
+    return `<div class="sf-field"><label class="sf-label">${label}</label>${h}<textarea rows="${rows}" oninput="data['${key}']=this.value">${data[key]||''}</textarea></div>`;
+  }
+  return `<div class="sf-field"><label class="sf-label">${label}</label>${h}<input type="text" value="${(data[key]||'').replace(/"/g,'&quot;')}" oninput="data['${key}']=this.value"></div>`;
+}
+
+function chipGroup(group, label, hint, options, multi=false) {
+  const h = hint ? `<span class="sf-hint">${hint}</span>` : '';
+  return `<div class="sf-field"><label class="sf-label">${label}</label>${h}<div class="sf-chips">${options.map(([v,l])=>chip(v,l,group,multi)).join('')}</div></div>`;
+}
+
+const RENDERERS = {
+  setup: () => `
+    <div class="sf-section">
+      <div class="sf-section-title">Project mode</div>
+      ${chipGroup('mode','What are you working on?','This determines the interview flow.',[
+        ['greenfield','Greenfield — new project'],
+        ['featureonly','Feature only — constitution exists'],
+        ['retrofit','Retrofit — existing project'],
+      ])}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Export target</div>
+      ${chipGroup('exportTarget','Which AI coding tool will you use?','',[
+        ['claudecode','Claude Code → CLAUDE.md'],
+        ['cursor','Cursor → .cursor/rules/'],
+        ['kiro','Kiro → .kiro/steering/'],
+        ['windsurf','Windsurf / OpenCode → AGENTS.md'],
+        ['universal','Universal → CONSTITUTION.md'],
+      ])}
+    </div>`,
+
+  mission: () => `
+    <div class="sf-section">
+      <div class="sf-section-title">Mission — what is this product?</div>
+      ${field('product','Product description','One sentence, as if explaining to a potential user.','textarea',2)}
+      ${field('audience','Target user','Specific — job title, context, technical level.','textarea',2)}
+      ${field('problem','Core problem solved','The pain this product eliminates.','textarea',2)}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Scope</div>
+      ${field('outOfScope','What is explicitly out of scope for v1?','Be specific — this is as valuable as what\'s in scope.','textarea',2)}
+      ${chipGroup('context','Product context','',[
+        ['public','Public product'],
+        ['internal','Internal tool'],
+        ['hybrid','Hybrid (public + private admin)'],
+      ])}
+    </div>`,
+
+  techstack: () => `
+    <div class="sf-section">
+      <div class="sf-section-title">Tech stack — architecture decisions</div>
+      ${field('techPrefs','Technology preferences or constraints','Framework, language, hosting — leave blank for defaults.','textarea',2)}
+      ${chipGroup('database','Database','',[
+        ['postgres','PostgreSQL'],['sqlite','SQLite'],['mongo','MongoDB'],['recommend','Recommend one for me'],
+      ])}
+      ${chipGroup('auth','Authentication','Select all that apply.',[
+        ['emailpass','Email + password'],['google','Google OAuth'],['github','GitHub OAuth'],
+        ['magic','Magic link'],['none','No auth needed'],
+      ],true)}
+      ${chipGroup('responsive','Responsive target','',[
+        ['desktop','Desktop-first'],['mobile','Mobile-first'],['both','Fully responsive'],
+      ])}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Integrations & constraints</div>
+      ${field('integrations','Third-party services or APIs','Stripe, Resend, Mapbox, etc. — list with purpose.','textarea',2)}
+      ${field('constraints','Performance, accessibility, or compliance requirements','e.g. WCAG AA, sub-2s load time, GDPR.','textarea',2)}
+    </div>`,
+
+  roadmap: () => `
+    <div class="sf-section">
+      <div class="sf-section-title">Roadmap — feature sequence</div>
+      ${field('features','List your core v1 features','Rough is fine — one per line.','textarea',5)}
+      ${field('firstFeature','Which single feature makes this worth showing to your first user?','','textarea',2)}
+      ${field('dependencies','Features that can\'t be built until another is done first?','Leave blank if none.','textarea',2)}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Granularity</div>
+      ${chipGroup('roadmapGranularity','How should phases be organised?','',[
+        ['small','Small steps — one feature per phase'],
+        ['grouped','Grouped — related features together'],
+        ['milestone','Milestone-based — by what\'s shippable'],
+      ])}
+    </div>`,
+
+  feature: () => `
+    <div class="sf-section">
+      <div class="sf-section-title">Feature spec — plan</div>
+      ${field('featureName','Feature name','')}
+      ${field('userFlow','Main user flow','Step by step — what does the user do?','textarea',4)}
+      ${field('edgeCases','Edge cases & error states','What should happen when something goes wrong?','textarea',3)}
+      ${chipGroup('featureTrigger','Who triggers this feature?','',[
+        ['user','User action'],['system','System event'],['both','Both'],
+      ])}
+      ${chipGroup('featureStates','UI states this feature can be in','Select all that apply.',[
+        ['loading','Loading / skeleton'],['empty','Empty state'],['error','Error state'],
+        ['success','Success / confirmation'],['locked','Locked / permission denied'],
+      ],true)}
+      ${chipGroup('componentTypes','Component types in this feature','Select all that apply — drives the spec detail.',[
+        ['form','Form'],['list','List / data table'],['carousel','Carousel / slider'],
+        ['auth','Authentication'],['dashboard','Dashboard / data view'],
+        ['modal','Modal / overlay'],['nav','Navigation'],['notifications','Notifications'],
+      ],true)}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Feature spec — requirements</div>
+      ${field('techConstraints','Technical constraints','Must use / must avoid — specific libraries or patterns.','textarea',2)}
+      ${field('dataSchema','Data that must be persisted','Table name, key fields, types — rough schema.','textarea',3)}
+      ${chipGroup('performance','Performance expectation','',[
+        ['standard','Standard — no special targets'],
+        ['fast','Fast — under 2 seconds'],
+        ['critical','Critical — real-time / near-instant'],
+      ])}
+      ${chipGroup('accessibility','Accessibility requirement','',[
+        ['none','No specific requirement'],['aa','WCAG AA'],['aaa','WCAG AAA'],
+      ])}
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Feature spec — validation</div>
+      ${field('happyPath','Happy path test','Describe the exact steps to verify this feature works.','textarea',3)}
+      ${field('failureCases','Most important failure cases to verify','','textarea',2)}
+      ${chipGroup('doneWhen','Definition of done','',[
+        ['desktop','Works end-to-end on desktop'],
+        ['deskmob','Works on desktop and mobile'],
+        ['tests','Works + automated tests pass'],
+        ['signoff','Works + stakeholder sign-off'],
+      ])}
+    </div>`,
+
+  export: () => {
+    const summary = buildSummary();
+    const prompt = buildPrompt(summary);
+    return `
+    <div class="sf-section">
+      <div class="sf-section-title">How to use this output</div>
+      <div class="sf-step">
+        <div class="sf-step-num">1</div>
+        <div class="sf-step-body">
+          <div class="sf-step-title">Get the SpecForge skill</div>
+          <div class="sf-step-desc">Download the skill file and add it to your Claude Project — or paste it at the start of a new chat. The skill teaches Claude how to turn your answers into production-quality spec files.<br><br>
+          <a href="https://github.com/specforge/skill/releases/latest/download/specforge-skill.md" target="_blank">Download specforge-skill.md →</a></div>
+        </div>
+      </div>
+      <hr class="sf-divider">
+      <div class="sf-step">
+        <div class="sf-step-num">2</div>
+        <div class="sf-step-body">
+          <div class="sf-step-title">Copy your first prompt</div>
+          <div class="sf-step-desc">This prompt includes your answers and tells Claude exactly what to do. Copy it and paste it as your first message in a new Claude chat with the skill loaded.</div>
+          <div class="sf-prompt-box" id="prompt-box">${escHtml(prompt)}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+            <button class="sf-btn-green" onclick="copyPrompt()">Copy first prompt</button>
+            <span class="sf-copy-confirm" id="copy-prompt-confirm">Copied!</span>
+          </div>
+        </div>
+      </div>
+      <hr class="sf-divider">
+      <div class="sf-step">
+        <div class="sf-step-num">3</div>
+        <div class="sf-step-body">
+          <div class="sf-step-title">Claude takes it from here</div>
+          <div class="sf-step-desc">Claude will read your answers, identify any gaps or inconsistencies, ask only the follow-up questions that are needed, then generate your full spec bundle — mission.md, tech-stack.md, roadmap.md, and your feature spec files — ready to drop into your project.</div>
+        </div>
+      </div>
+    </div>
+    <div class="sf-section">
+      <div class="sf-section-title">Your compiled answers</div>
+      <div class="sf-copy-row">
+        <span class="sf-copy-label">Raw answers only — for reference</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="sf-copy-confirm" id="copy-answers-confirm">Copied!</span>
+          <button class="sf-btn-secondary" style="font-size:12px;padding:4px 10px;" onclick="copyAnswers()">Copy</button>
+        </div>
+      </div>
+      <div class="sf-output" id="sf-output">${escHtml(summary)}</div>
+    </div>`;
+  }
+};
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildSummary() {
+  const authMap = {emailpass:'Email + password',google:'Google OAuth',github:'GitHub OAuth',magic:'Magic link',none:'No auth'};
+  const stateMap = {loading:'Loading',empty:'Empty state',error:'Error state',success:'Success',locked:'Locked/permission denied'};
+  const compMap  = {form:'Form',list:'List/data table',carousel:'Carousel',auth:'Authentication',dashboard:'Dashboard',modal:'Modal',nav:'Navigation',notifications:'Notifications'};
+  const a = v => Array.isArray(v) ? v : [];
+
+  return [
+    `## SpecForge Interview — Compiled Answers`,``,
+    `**Mode:** ${data.mode}`,
+    `**Export target:** ${data.exportTarget}`,``,
+    `### Mission`,
+    `Product: ${data.product||'—'}`,
+    `Audience: ${data.audience||'—'}`,
+    `Problem: ${data.problem||'—'}`,
+    `Out of scope: ${data.outOfScope||'—'}`,
+    `Context: ${data.context||'—'}`,``,
+    `### Tech Stack`,
+    `Preferences: ${data.techPrefs||'—'}`,
+    `Database: ${data.database||'—'}`,
+    `Auth: ${a(data.auth).map(x=>authMap[x]||x).join(', ')||'—'}`,
+    `Responsive: ${data.responsive||'—'}`,
+    `Integrations: ${data.integrations||'—'}`,
+    `Constraints: ${data.constraints||'—'}`,``,
+    `### Roadmap`,
+    `Features: ${data.features||'—'}`,
+    `First feature: ${data.firstFeature||'—'}`,
+    `Dependencies: ${data.dependencies||'—'}`,
+    `Granularity: ${data.roadmapGranularity||'—'}`,``,
+    `### Feature Spec — ${data.featureName||'[unnamed]'}`,
+    `User flow: ${data.userFlow||'—'}`,
+    `Edge cases: ${data.edgeCases||'—'}`,
+    `Trigger: ${data.featureTrigger||'—'}`,
+    `States: ${a(data.featureStates).map(x=>stateMap[x]||x).join(', ')||'—'}`,
+    `Components: ${a(data.componentTypes).map(x=>compMap[x]||x).join(', ')||'—'}`,
+    `Tech constraints: ${data.techConstraints||'—'}`,
+    `Data schema: ${data.dataSchema||'—'}`,
+    `Performance: ${data.performance||'—'}`,
+    `Accessibility: ${data.accessibility||'—'}`,
+    `Happy path: ${data.happyPath||'—'}`,
+    `Failure cases: ${data.failureCases||'—'}`,
+    `Definition of done: ${data.doneWhen||'—'}`,
+  ].join('\n');
+}
+
+function buildPrompt(summary) {
+  return `I've filled in the SpecForge interview form. Please read my answers below, identify any gaps or inconsistencies, ask only the follow-up questions that are needed, then generate my full spec bundle.
+
+${summary}`;
+}
+
+function copyPrompt() {
+  const summary = buildSummary();
+  const prompt = buildPrompt(summary);
+  navigator.clipboard.writeText(prompt).then(() => {
+    const c = document.getElementById('copy-prompt-confirm');
+    c.classList.add('show');
+    setTimeout(() => c.classList.remove('show'), 2000);
+  }).catch(() => {});
+}
+
+function copyAnswers() {
+  const el = document.getElementById('sf-output');
+  navigator.clipboard.writeText(el.textContent).then(() => {
+    const c = document.getElementById('copy-answers-confirm');
+    c.classList.add('show');
+    setTimeout(() => c.classList.remove('show'), 2000);
+  }).catch(() => {});
+}
+
+function getVisiblePhases() {
+  return data.mode === 'featureonly'
+    ? PHASES.filter(p => !['mission','techstack','roadmap'].includes(p.id))
+    : PHASES;
+}
+
+function renderNav() {
+  const visible = getVisiblePhases();
+  document.getElementById('phase-nav').innerHTML = visible.map(p => {
+    const gi = PHASES.findIndex(ph => ph.id === p.id);
+    const done = completedPhases.has(gi) && gi !== currentPhase;
+    const active = gi === currentPhase;
+    return `<button class="sf-phase-btn${active?' active':''}${done?' done':''}" onclick="goPhase(${gi})">${p.label}</button>`;
+  }).join('');
+}
+
+function renderPhase() {
+  const renderer = RENDERERS[PHASES[currentPhase].id];
+  document.getElementById('phase-content').innerHTML = renderer ? renderer() : '';
+  renderNav();
+  const visible = getVisiblePhases();
+  const vi = visible.findIndex(p => PHASES.findIndex(ph => ph.id === p.id) === currentPhase);
+  const pct = Math.round((vi / (visible.length - 1)) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('btn-back').style.visibility = vi === 0 ? 'hidden' : 'visible';
+  document.getElementById('btn-next').textContent = vi === visible.length - 1 ? 'Done ✓' : 'Next →';
+}
+
+function nextPhase() {
+  completedPhases.add(currentPhase);
+  const visible = getVisiblePhases();
+  const vi = visible.findIndex(p => PHASES.findIndex(ph => ph.id === p.id) === currentPhase);
+  if (vi < visible.length - 1) {
+    currentPhase = PHASES.findIndex(ph => ph.id === visible[vi + 1].id);
+    renderPhase();
+    window.scrollTo(0, 0);
+  }
+}
+
+function prevPhase() {
+  const visible = getVisiblePhases();
+  const vi = visible.findIndex(p => PHASES.findIndex(ph => ph.id === p.id) === currentPhase);
+  if (vi > 0) {
+    currentPhase = PHASES.findIndex(ph => ph.id === visible[vi - 1].id);
+    renderPhase();
+    window.scrollTo(0, 0);
+  }
+}
+
+function goPhase(idx) {
+  currentPhase = idx;
+  renderPhase();
+}
+
+renderPhase();
+</script>
+</body>
+</html>
