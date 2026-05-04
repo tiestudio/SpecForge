@@ -179,7 +179,7 @@ One file to replace. Your agent always knows what's been built and what comes ne
 
 SpecForge is early. A visual web platform is coming — template library, design direction visuals, and Claude Projects integration so you never have to manage files manually.
 
-**[Follow the build →](https://specforge.io)**
+**[Follow the build →](https://specforge.ties.digital)**
 
 ---
 
@@ -187,7 +187,7 @@ SpecForge is early. A visual web platform is coming — template library, design
 
 Feedback on a real project is the most useful thing right now — which questions were confusing, what was missing, whether the spec files actually improved your agent's output.
 
-**[Leave feedback →](https://specforge.io#feedback)**
+**[Leave feedback →](https://specforge.ties.digital/#feedback)**
 
 ---
 
