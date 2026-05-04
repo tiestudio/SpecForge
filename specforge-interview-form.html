@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpecForge — Interview Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:           #0f0f0d;
+      --ink-mid:       #4a4a46;
+      --ink-faint:     #9a9a94;
+      --paper:         #f7f6f2;
+      --paper-mid:     #eeecea;
+      --paper-dark:    #e4e2de;
+      --accent:        #1a6b4a;
+      --accent-light:  #d4ede3;
+      --accent-mid:    #0f4730;
+      --border:        rgba(15,15,13,0.1);
+      --border-mid:    rgba(15,15,13,0.18);
+      --serif:         'Instrument Serif', Georgia, serif;
+      --sans:          'DM Sans', sans-serif;
+      --r:             10px;
+      --r-sm:          6px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      background: var(--paper-mid);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .hd {
+      background: var(--paper);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1.1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .hd-logo { font-family: var(--serif); font-size: 1.15rem; }
+    .hd-logo span { font-family: var(--sans); font-size: 12px; font-weight: 400; color: var(--ink-faint); margin-left: 6px; }
+    .hd-right { display: flex; align-items: center; gap: 12px; }
+    .hd-prog-bar { width: 100px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .hd-prog-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+    .hd-prog-lbl { font-size: 12px; color: var(--ink-faint); white-space: nowrap; }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 680px; margin: 0 auto; padding: 2.5rem 1.5rem 6rem; }
+
+    /* ── PHASE HEADER ── */
+    .ph-eye { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+    .ph-title { font-family: var(--serif); font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 0.4rem; }
+    .ph-desc { font-size: 14px; color: var(--ink-mid); font-weight: 300; line-height: 1.6; margin-bottom: 2rem; }
+
+    /* ── QUESTION CARD ── */
+    .q {
+      background: var(--paper);
+      border: 0.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .q:focus-within { border-color: var(--border-mid); }
+    .q-lbl { font-size: 15px; font-weight: 500; display: block; margin-bottom: 0.25rem; }
+    .q-help { font-size: 13px; color: var(--ink-faint); font-weight: 300; line-height: 1.55; margin-bottom: 0.75rem; }
+    .q-help strong { color: var(--ink-mid); font-weight: 400; }
+    .q-opt { display: inline-block; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: var(--paper-dark); color: var(--ink-faint); margin-left: 8px; vertical-align: middle; }
+
+    textarea, input[type="text"] {
+      width: 100%; padding: 9px 12px;
+      border: 0.5px solid var(--border-mid);
+      border-radius: var(--r-sm);
+      background: var(--paper-mid);
+      color: var(--ink); font-size: 14px;
+      font-family: var(--sans); font-weight: 300;
+      line-height: 1.6; resize: vertical; outline: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    textarea { min-height: 72px; }
+    textarea:focus, input[type="text"]:focus { border-color: var(--accent); background: var(--paper); }
+    textarea::placeholder, input::placeholder { color: var(--ink-faint); }
+
+    /* ── CHIPS ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      font-size: 13px; font-weight: 400;
+      padding: 6px 14px; border-radius: 20px;
+      border: 0.5px solid var(--border-mid);
+      background: var(--paper-mid); color: var(--ink-mid);
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .chip:hover { border-color: var(--accent); color: var(--ink); background: var(--paper); }
+    .chip.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .chip.on:hover { opacity: 0.85; }
+    .chip.ranked { background: var(--accent); color: white; border-color: var(--accent); }
+    .chip-rank { display: inline-block; background: rgba(255,255,255,0.3); border-radius: 10px; font-size: 10px; font-weight: 600; padding: 0 5px; margin-left: 4px; }
+
+    /* ── MODE CARDS ── */
+    .mode-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 0; }
+    .mode-card {
+      background: var(--paper); border: 1px solid var(--border-mid);
+      border-radius: var(--r); padding: 1.25rem 1.5rem;
+      cursor: pointer; transition: all 0.18s;
+      display: flex; align-items: flex-start; gap: 1rem;
+    }
+    .mode-card:hover { border-color: var(--accent); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(15,15,13,0.06); }
+    .mode-card.sel { border-color: var(--accent); background: var(--accent-light); }
+    .mode-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; line-height: 1; }
+    .mode-card-title { font-size: 15px; font-weight: 500; margin-bottom: 3px; }
+    .mode-card-desc { font-size: 13px; color: var(--ink-mid); font-weight: 300; line-height: 1.5; }
+
+    /* ── OPTION CARDS (illustrated) ── */
+    .opt-cards { display: flex; flex-direction: column; gap: 8px; }
+    .opt-card {
+      background: var(--paper-mid); border: 0.5px solid var(--border-mid);
+      border-radius: var(--r-sm); padding: 1rem 1.25rem;
+      cursor: pointer; transition: all 0.15s;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .opt-card:hover { border-color: var(--accent); background: var(--paper); }
+    .opt-card.sel { border-color: var(--accent); background: var(--accent-light); }
+    .opt-card-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .opt-card-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+    .opt-card-desc { font-size: 13px; color: var(--ink-mid); font-weight: 300; line-height: 1.5; }
+
+    /* ── FEATURE TILES ── */
+    .tile-section { margin-bottom: 1.25rem; }
+    .tile-section-lbl { font-size: 12px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+    .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+    .tile {
+      background: var(--paper-mid); border: 0.5px solid var(--border-mid);
+      border-radius: var(--r-sm); padding: 0.875rem 1rem;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .tile:hover { border-color: var(--accent); background: var(--paper); }
+    .tile.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .tile.on .tile-icon { filter: invert(1); }
+    .tile.secondary { opacity: 0.7; }
+    .tile.secondary:hover { opacity: 1; }
+    .tile-icon { font-size: 1.1rem; margin-bottom: 5px; display: block; }
+    .tile-name { font-size: 13px; font-weight: 500; }
+
+    /* ── NAV ── */
+    .nav { display: flex; align-items: center; justify-content: space-between; margin-top: 1.75rem; gap: 1rem; }
+    .btn-back {
+      font-size: 14px; font-weight: 400;
+      padding: 10px 18px; border-radius: var(--r-sm);
+      border: 0.5px solid var(--border-mid);
+      background: transparent; color: var(--ink-mid);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-back:hover { background: var(--paper); color: var(--ink); }
+    .btn-back:disabled { opacity: 0; pointer-events: none; }
+    .btn-next {
+      font-size: 14px; font-weight: 500;
+      padding: 10px 22px; border-radius: var(--r-sm);
+      border: none; background: var(--ink); color: var(--paper);
+      cursor: pointer; transition: opacity 0.15s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .btn-next:hover { opacity: 0.82; }
+
+    /* ── EXPORT ── */
+    .exp-steps { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 1.5rem; }
+    .exp-step { background: var(--paper); padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+    .exp-step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--ink); color: var(--paper); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .exp-step-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+    .exp-step-desc { font-size: 13px; color: var(--ink-mid); font-weight: 300; line-height: 1.55; }
+    .exp-step-desc a { color: var(--accent); text-decoration: underline; }
+
+    .out-wrap { background: var(--paper); border: 0.5px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 1rem; }
+    .out-bar { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 1.25rem; border-bottom: 0.5px solid var(--border); background: var(--paper-mid); }
+    .out-lbl { font-size: 12px; font-weight: 500; color: var(--ink-mid); }
+    .out-copy { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: var(--r-sm); border: 0.5px solid var(--border-mid); background: var(--paper); color: var(--ink); cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
+    .out-copy:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .out-text { padding: 1.1rem 1.25rem; font-size: 12px; font-family: 'SF Mono','Fira Code',monospace; color: var(--ink-mid); white-space: pre-wrap; max-height: 260px; overflow-y: auto; line-height: 1.7; }
+
+    .btn-green { width: 100%; padding: 13px; border-radius: var(--r-sm); border: none; background: var(--accent); color: white; font-size: 15px; font-weight: 500; font-family: var(--sans); cursor: pointer; transition: opacity 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-green:hover { opacity: 0.88; }
+    .btn-ghost { padding: 10px 18px; border-radius: var(--r-sm); border: 0.5px solid var(--border-mid); background: transparent; color: var(--ink-mid); font-size: 14px; cursor: pointer; transition: all 0.15s; }
+    .btn-ghost:hover { background: var(--paper); color: var(--ink); }
+
+    .confirm { font-size: 12px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
+    .confirm.show { opacity: 1; }
+
+    /* ── ANIM ── */
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .phase { animation: fadeIn 0.3s ease; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      .hd { padding: 1rem 1.25rem; }
+      .wrap { padding: 1.5rem 1rem 5rem; }
+      .q { padding: 1rem 1.1rem; }
+      .tile-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="hd-logo">SpecForge <span>/ Interview</span></div>
+  <div class="hd-right">
+    <div class="hd-prog-bar"><div class="hd-prog-fill" id="prog"></div></div>
+    <div class="hd-prog-lbl" id="prog-lbl"></div>
+  </div>
+</header>
+
+<div class="wrap" id="root"></div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────
+
+const CATEGORIES = [
+  { v:'saas',     icon:'◈', label:'SaaS web app',         desc:'Multi-user accounts, data, dashboard' },
+  { v:'internal', icon:'◉', label:'Internal tool',        desc:'For my team only, no public sign-up' },
+  { v:'market',   icon:'◎', label:'Marketplace',          desc:'Buyers and sellers, listings, transactions' },
+  { v:'content',  icon:'◇', label:'Content platform',     desc:'Publishing, reading, discovery' },
+  { v:'booking',  icon:'◆', label:'Booking & scheduling', desc:'Availability, reservations, calendar' },
+  { v:'portfolio',icon:'○', label:'Portfolio / showcase', desc:'Primarily static, case studies, contact' },
+  { v:'ecomm',    icon:'◑', label:'E-commerce',           desc:'Products, cart, checkout, orders' },
+  { v:'mobile',   icon:'◐', label:'Native mobile app',    desc:'iOS and/or Android, app store' },
+  { v:'other',    icon:'◒', label:'Something else',       desc:'I\'ll describe it' },
+];
+
+const PROBLEMS = [
+  { v:'manual',  icon:'⟳', label:'Too many manual steps', desc:'I\'m doing things by hand that should happen automatically — spreadsheets, copy-paste, manual messages' },
+  { v:'info',    icon:'◎', label:'Hard to find information', desc:'The information exists but it\'s scattered, slow to access, or locked away somewhere' },
+  { v:'visible', icon:'◈', label:'No visibility into what\'s happening', desc:'Things happen but I can\'t track or understand them in one place' },
+  { v:'sync',    icon:'◉', label:'Getting people to stay in sync', desc:'Multiple people need to work together but there\'s no good way to do it right now' },
+  { v:'transact',icon:'◇', label:'Buying or booking is too hard', desc:'A transaction that should be simple is currently clunky, manual, or offline' },
+  { v:'content', icon:'◆', label:'Creating or sharing content is painful', desc:'Making and publishing content takes too much effort or technical skill' },
+  { v:'other',   icon:'◒', label:'Something else', desc:'I\'ll describe it in my own words' },
+];
+
+const ACTIONS = [
+  { v:'create',   label:'Create and manage things',        desc:'Make items, edit them, organise them' },
+  { v:'discover', label:'Find and discover things',        desc:'Search, browse, filter to find what\'s needed' },
+  { v:'book',     label:'Book or reserve something',       desc:'Claim a slot, seat, or time from available options' },
+  { v:'submit',   label:'Submit something for review',     desc:'Send something in and wait for a result' },
+  { v:'track',    label:'Track progress over time',        desc:'Monitor something that changes — a project, metric, status' },
+  { v:'consume',  label:'Consume content',                 desc:'Read, watch, or listen to content' },
+  { v:'comms',    label:'Communicate with others',         desc:'Messages, comments, updates between users' },
+];
+
+const UNIVERSAL_TILES = [
+  { v:'auth',     icon:'🔑', label:'User accounts & login' },
+  { v:'settings', icon:'⚙️', label:'Settings / profile page' },
+  { v:'mobile',   icon:'📱', label:'Mobile-friendly design' },
+  { v:'search',   icon:'🔍', label:'Search & filtering' },
+  { v:'notifs',   icon:'🔔', label:'Notifications & alerts' },
+  { v:'dashboard',icon:'📊', label:'Dashboard & overview' },
+];
+
+const CATEGORY_TILES = {
+  saas:     [
+    { v:'table',    icon:'📋', label:'Data table / list' },
+    { v:'crud',     icon:'✏️', label:'Create / edit / delete items' },
+    { v:'roles',    icon:'👥', label:'Team members & roles' },
+    { v:'export',   icon:'📤', label:'Export data' },
+    { v:'activity', icon:'📝', label:'Activity log' },
+    { v:'api',      icon:'🔌', label:'API access' },
+  ],
+  internal: [
+    { v:'table',    icon:'📋', label:'Data table / list' },
+    { v:'crud',     icon:'✏️', label:'Create / edit / delete items' },
+    { v:'roles',    icon:'👥', label:'Team members & roles' },
+    { v:'export',   icon:'📤', label:'Export data' },
+    { v:'activity', icon:'📝', label:'Activity log' },
+    { v:'reports',  icon:'📈', label:'Reports & charts' },
+  ],
+  market:   [
+    { v:'listings', icon:'🏷️', label:'Listings / product pages' },
+    { v:'profiles', icon:'👤', label:'User profiles' },
+    { v:'reviews',  icon:'⭐', label:'Reviews & ratings' },
+    { v:'messaging',icon:'💬', label:'Messaging between users' },
+    { v:'payments', icon:'💳', label:'Payments' },
+    { v:'orders',   icon:'📦', label:'Orders & bookings' },
+  ],
+  content:  [
+    { v:'editor',   icon:'✍️', label:'Content editor' },
+    { v:'publish',  icon:'📢', label:'Publishing & drafts' },
+    { v:'tags',     icon:'🏷️', label:'Categories & tags' },
+    { v:'comments', icon:'💬', label:'Comments' },
+    { v:'rss',      icon:'📡', label:'RSS or email digest' },
+    { v:'media',    icon:'🖼️', label:'Media library' },
+  ],
+  booking:  [
+    { v:'calendar', icon:'📅', label:'Calendar view' },
+    { v:'avail',    icon:'✅', label:'Availability management' },
+    { v:'confirm',  icon:'✉️', label:'Booking confirmations' },
+    { v:'cancel',   icon:'❌', label:'Cancellations & refunds' },
+    { v:'reminders',icon:'⏰', label:'Reminders' },
+    { v:'payments', icon:'💳', label:'Payments' },
+  ],
+  portfolio:[
+    { v:'projects', icon:'🖼️', label:'Case studies / project pages' },
+    { v:'contact',  icon:'📩', label:'Contact form' },
+    { v:'about',    icon:'👤', label:'About page' },
+    { v:'gallery',  icon:'🗃️', label:'Image gallery' },
+    { v:'blog',     icon:'✍️', label:'Blog / writing' },
+  ],
+  ecomm:    [
+    { v:'catalogue',icon:'🛍️', label:'Product catalogue' },
+    { v:'cart',     icon:'🛒', label:'Shopping cart' },
+    { v:'checkout', icon:'💳', label:'Checkout & payments' },
+    { v:'orders',   icon:'📦', label:'Order history' },
+    { v:'inventory',icon:'📊', label:'Inventory management' },
+    { v:'promo',    icon:'🏷️', label:'Discount codes' },
+  ],
+  mobile:   [
+    { v:'push',     icon:'🔔', label:'Push notifications' },
+    { v:'offline',  icon:'📶', label:'Offline mode' },
+    { v:'camera',   icon:'📷', label:'Camera / media access' },
+    { v:'location', icon:'📍', label:'Location features' },
+    { v:'biometric',icon:'👆', label:'Biometric login' },
+  ],
+  other:    [],
+};
+
+const SECONDARY_TILES = [
+  { v:'payments', icon:'💳', label:'Payments' },
+  { v:'messaging',icon:'💬', label:'Messaging' },
+  { v:'calendar', icon:'📅', label:'Calendar' },
+  { v:'files',    icon:'📁', label:'File uploads' },
+  { v:'reports',  icon:'📈', label:'Reports' },
+  { v:'roles',    icon:'👥', label:'Team & roles' },
+  { v:'api',      icon:'🔌', label:'API access' },
+  { v:'comments', icon:'💬', label:'Comments' },
+];
+
+const OUTSCOPE_BY_CAT = {
+  saas:     ['mobile_app','multilang','advanced_analytics','public_api','offline'],
+  internal: ['mobile_app','multilang','public_api','payments'],
+  market:   ['mobile_app','multilang','advanced_analytics'],
+  content:  ['mobile_app','multilang','payments','team_accounts'],
+  booking:  ['mobile_app','multilang','advanced_analytics','public_api'],
+  portfolio:['mobile_app','multilang','payments','team_accounts','advanced_analytics'],
+  ecomm:    ['mobile_app','multilang','advanced_analytics','public_api','offline'],
+  mobile:   ['multilang','public_api'],
+  other:    ['mobile_app','multilang'],
+};
+
+const OUTSCOPE_TILES = [
+  { v:'mobile_app',          label:'Native mobile app' },
+  { v:'multilang',           label:'Multi-language support' },
+  { v:'team_accounts',       label:'Team / multi-user accounts' },
+  { v:'advanced_analytics',  label:'Advanced analytics & reporting' },
+  { v:'third_party',         label:'Third-party integrations' },
+  { v:'payments',            label:'Payments' },
+  { v:'email_notifs',        label:'Email notifications' },
+  { v:'admin_panel',         label:'Admin panel' },
+  { v:'public_api',          label:'Public API' },
+  { v:'offline',             label:'Offline mode' },
+];
+
+const INTEGRATIONS_BY_FEATURE = {
+  payments: { v:'payments', label:'Take payments', tool:'Stripe' },
+  notifs:   { v:'emails',   label:'Send emails — confirmations, reminders', tool:'Resend' },
+  sms:      { v:'sms',      label:'Send SMS text messages', tool:'Twilio' },
+  files:    { v:'files',    label:'Store and serve files — images, videos, documents', tool:'Supabase Storage' },
+  location: { v:'maps',     label:'Show maps or locations', tool:'Mapbox' },
+  calendar: { v:'gcal',     label:'Sync with a calendar', tool:'Google Calendar API' },
+  analytics:{ v:'analytics',label:'Track how people use the product', tool:'Plausible' },
+};
+
+const EXISTING_TOOLS = [
+  { v:'hubspot',   label:'HubSpot / Salesforce / Pipedrive',  cat:'CRM' },
+  { v:'slack',     label:'Slack / Microsoft Teams',            cat:'Communication' },
+  { v:'mailchimp', label:'Mailchimp / Kit / Beehiiv',          cat:'Email marketing' },
+  { v:'notion',    label:'Notion / Trello / Asana / Linear',   cat:'Project management' },
+  { v:'intercom',  label:'Intercom / Zendesk / Crisp',         cat:'Customer support' },
+  { v:'xero',      label:'QuickBooks / Xero / FreshBooks',     cat:'Accounting' },
+  { v:'sheets',    label:'Google Sheets / Airtable',           cat:'Spreadsheets & data' },
+];
+
+const FLOW_PATTERNS = [
+  { v:'linear',   icon:'→', label:'Do something and see a result',    desc:'Fill in details, confirm, see outcome — forms, bookings, submissions' },
+  { v:'browse',   icon:'⊞', label:'Browse and select',                desc:'See a list, filter or search, click an item, take action — catalogues, directories' },
+  { v:'manage',   icon:'◈', label:'Manage a collection',              desc:'See your things, create new ones, edit or delete — dashboards, admin' },
+  { v:'async',    icon:'◎', label:'Trigger and wait',                 desc:'Start something, system processes it, see the outcome — payments, uploads' },
+  { v:'wizard',   icon:'◇', label:'Multi-step wizard',                desc:'Go through steps one at a time to complete something complex — onboarding, setup' },
+  { v:'settings', icon:'⚙', label:'Settings and preferences',        desc:'Change something about an account or the product — profile, configuration' },
+];
+
+const COMPONENT_TYPES = [
+  { v:'form',     label:'A form (fields to fill in)' },
+  { v:'list',     label:'A list or table of items' },
+  { v:'modal',    label:'A popup or confirmation dialog' },
+  { v:'auth',     label:'Login or sign-up' },
+  { v:'dash',     label:'A dashboard or data overview' },
+  { v:'carousel', label:'A slideshow or carousel' },
+  { v:'nav',      label:'Navigation menus' },
+  { v:'alerts',   label:'Notifications or alerts' },
+];
+
+const UNIVERSAL_EDGES = [
+  { v:'incomplete', label:'User submits an incomplete form — missing required fields' },
+  { v:'offline',    label:'User loses connection mid-action' },
+  { v:'timeout',    label:'The action takes too long — request hangs or times out' },
+  { v:'duplicate',  label:'User tries to do something twice — double-submit or duplicate' },
+  { v:'permission', label:'User tries to access something they\'re not allowed to' },
+  { v:'notfound',   label:'The thing they\'re looking for doesn\'t exist or was deleted' },
+  { v:'session',    label:'Session expires while they\'re in the middle of something' },
+];
+
+const FEATURE_EDGES = {
+  booking:  [
+    { v:'unavail',  label:'Slot becomes unavailable while user is filling in details' },
+    { v:'duplicate_book', label:'User tries to book something they already booked' },
+    { v:'late_cancel',    label:'Cancellation requested after the deadline' },
+  ],
+  payments: [
+    { v:'declined', label:'Payment card is declined' },
+    { v:'pay_ok_email_fail', label:'Payment succeeds but confirmation email fails to send' },
+    { v:'window_close',      label:'User closes the window after paying but before confirmation' },
+  ],
+  files:    [
+    { v:'too_large',  label:'File is too large' },
+    { v:'wrong_type', label:'File type not supported' },
+    { v:'upload_fail',label:'Upload fails partway through' },
+  ],
+  search:   [
+    { v:'no_results', label:'Search or filter returns no results' },
+    { v:'too_many',   label:'Search returns too many results to be useful' },
+  ],
+  auth:     [
+    { v:'existing_email', label:'Email is already registered' },
+    { v:'wrong_pass',     label:'Wrong password — and account lockout after repeated attempts' },
+    { v:'expired_link',   label:'Password reset or magic link has expired' },
+  ],
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────
+
+let step = 0;
+let d = {
+  mode: null, exportTarget: 'claudecode',
+  // Greenfield
+  category: null, categoryOther: '',
+  productDesc: '', userTypes: [], userDetail: '',
+  problem: null, problemOther: '',
+  actions: [], primaryAction: null,
+  features: [], featuresOther: '',
+  outScope: [], outScopeOther: '',
+  context: null,
+  dataType: null,
+  authMethods: [],
+  hostingNotes: '',
+  integrations: [],
+  existingTools: [], existingToolsOther: '',
+  colorMood: null, fontStyle: null, cornerStyle: null, density: null,
+  performance: null, accessibility: null,
+  phaseSize: null,
+  // Retrofit
+  retProjectDesc: '', retTech: '',
+  retHealth: null, retProblems: [],
+  retWorks: '', retBroken: '', retRegrets: '',
+  retNext: '', retOutScope: '', retExistingTools: '',
+  // Feature
+  featName: '', featWhat: '', featFlow: '',
+  flowPattern: null,
+  uiStates: [], edgesUniversal: [], edgesFeature: [],
+  componentTypes: [], featSuccess: '',
+};
+
+// ─── PHASE DEFINITIONS ────────────────────────────────────────────────────
+
+function getPhases() {
+  if (!d.mode) return [renderMode];
+  if (d.mode === 'greenfield') return [
+    renderMode, renderProduct, renderUserProblem, renderActions,
+    renderFeatures, renderContext, renderIntegrationsDesign,
+    renderPerfA11y, renderExport
+  ];
+  if (d.mode === 'retrofit') return [
+    renderMode, renderRetroState, renderRetroWrong,
+    renderRetroNext, renderExport
+  ];
+  if (d.mode === 'feature') return [
+    renderMode, renderFeatDesc, renderFeatDetails, renderExport
+  ];
+  return [renderMode];
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
+
+function chip(key, val, label, multi, ranked=false) {
+  const arr = multi ? (d[key]||[]) : null;
+  const isOn = multi ? arr.includes(val) : d[key] === val;
+  const rank = ranked && isOn ? d[key].indexOf(val) + 1 : null;
+  return `<button class="chip${isOn?(ranked?' ranked':' on'):''}"
+    onclick="toggleChip('${key}','${val}',${multi},${ranked})"
+    >${label}${rank ? `<span class="chip-rank">${rank}</span>` : ''}</button>`;
+}
+
+function toggleChip(key, val, multi, ranked=false) {
+  if (multi) {
+    if (!d[key]) d[key] = [];
+    const i = d[key].indexOf(val);
+    if (i >= 0) d[key].splice(i,1);
+    else {
+      if (ranked && d[key].length >= 3) return;
+      d[key].push(val);
+    }
+  } else {
+    d[key] = val;
+  }
+  render();
+}
+
+function modeCard(val, icon, title, desc) {
+  return `<div class="mode-card${d.mode===val?' sel':''}" onclick="d.mode='${val}';render()">
+    <div class="mode-icon">${icon}</div>
+    <div>
+      <div class="mode-card-title">${title}</div>
+      <div class="mode-card-desc">${desc}</div>
+    </div>
+  </div>`;
+}
+
+function optCard(key, val, icon, title, desc, single=true) {
+  const isOn = single ? d[key]===val : (d[key]||[]).includes(val);
+  return `<div class="opt-card${isOn?' sel':''}" onclick="toggleChip('${key}','${val}',${!single})">
+    <div class="opt-card-icon">${icon}</div>
+    <div>
+      <div class="opt-card-title">${title}</div>
+      <div class="opt-card-desc">${desc}</div>
+    </div>
+  </div>`;
+}
+
+function tile(key, val, icon, label, secondary=false) {
+  const isOn = (d[key]||[]).includes(val);
+  return `<div class="tile${isOn?' on':''}${secondary?' secondary':''}" onclick="toggleTile('${key}','${val}')">
+    <span class="tile-icon">${icon}</span>
+    <span class="tile-name">${label}</span>
+  </div>`;
+}
+
+function toggleTile(key, val) {
+  if (!d[key]) d[key] = [];
+  const i = d[key].indexOf(val);
+  i >= 0 ? d[key].splice(i,1) : d[key].push(val);
+  render();
+}
+
+function field(key, label, help, eg='', rows=3, opt=false) {
+  const optBadge = opt ? '<span class="q-opt">Optional</span>' : '';
+  const egHtml = eg ? `<strong>Example:</strong> "${eg}"` : '';
+  return `<div class="q">
+    <label class="q-lbl">${label}${optBadge}</label>
+    <p class="q-help">${help}${eg ? ' ' + egHtml : ''}</p>
+    <textarea rows="${rows}" oninput="d['${key}']=this.value">${d[key]||''}</textarea>
+  </div>`;
+}
+
+function sfield(key, label, help, eg='', opt=false) {
+  const optBadge = opt ? '<span class="q-opt">Optional</span>' : '';
+  const egHtml = eg ? `<strong>Example:</strong> "${eg}"` : '';
+  return `<div class="q">
+    <label class="q-lbl">${label}${optBadge}</label>
+    <p class="q-help">${help}${eg ? ' ' + egHtml : ''}</p>
+    <input type="text" value="${(d[key]||'').replace(/"/g,'&quot;')}" oninput="d['${key}']=this.value">
+  </div>`;
+}
+
+function chipsQ(key, label, help, options, multi=false, ranked=false) {
+  return `<div class="q">
+    <label class="q-lbl">${label}</label>
+    <p class="q-help">${help}</p>
+    <div class="chips">${options.map(o=>chip(key,o.v,o.label,multi,ranked)).join('')}</div>
+  </div>`;
+}
+
+function nav(backLabel='← Back', nextLabel='Continue →') {
+  const phases = getPhases();
+  const isFirst = step === 0;
+  const isLast = step === phases.length - 1;
+  return `<div class="nav">
+    <button class="btn-back" onclick="prev()" ${isFirst?'disabled':''}>${backLabel}</button>
+    <button class="btn-next" onclick="next()">${isLast ? 'Done ✓' : nextLabel}</button>
+  </div>`;
+}
+
+function progress() {
+  const phases = getPhases();
+  const total = phases.length - 1;
+  const pct = total > 0 ? Math.round((step/total)*100) : 0;
+  document.getElementById('prog').style.width = pct + '%';
+  document.getElementById('prog-lbl').textContent = step === 0 ? '' : `Step ${step} of ${total}`;
+}
+
+// ─── PHASE RENDERERS ─────────────────────────────────────────────────────
+
+function renderMode() {
+  return `<div class="phase">
+    <div class="ph-eye">Welcome</div>
+    <div class="ph-title">What are you working on?</div>
+    <div class="ph-desc">Choose the option that fits. The questions will adapt to your situation.</div>
+    <div class="mode-cards">
+      ${modeCard('greenfield','✦','Starting a new project','You have an idea and want to build it from scratch with an AI coding agent.')}
+      ${modeCard('retrofit','◈','Improving an existing project','You\'ve already built something and want to add features or fix things without breaking what works.')}
+      ${modeCard('feature','◇','Speccing a single feature','You already have a Constitution. You just need to plan the next feature before building it.')}
+    </div>
+    ${nav('','Let\'s go →')}
+  </div>`;
+}
+
+function renderProduct() {
+  const hasCatOther = d.category === 'other';
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 1 of 7</div>
+    <div class="ph-title">Your product</div>
+    <div class="ph-desc">Start with the big picture. No technical details needed — just describe what you're building.</div>
+
+    <div class="q">
+      <label class="q-lbl">What kind of product is this?</label>
+      <p class="q-help">Pick the option that fits best. This shapes the questions and the spec structure.</p>
+      <div class="chips">${CATEGORIES.map(c=>chip('category',c.v,c.label,false)).join('')}</div>
+      ${hasCatOther ? `<div style="margin-top:10px"><input type="text" placeholder="Describe your product type" value="${d.categoryOther}" oninput="d.categoryOther=this.value"></div>` : ''}
+    </div>
+
+    ${field('productDesc','Describe your product in one or two sentences',
+      'Write it as if explaining to a friend. No jargon needed.',
+      'A tool that helps yoga studios manage class bookings and send reminders to students.',3)}
+
+    ${nav()}
+  </div>`;
+}
+
+function renderUserProblem() {
+  const hasProbOther = d.problem === 'other';
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 2 of 7</div>
+    <div class="ph-title">Your users & the problem</div>
+    <div class="ph-desc">The more specific you are about who this is for, the more precisely the spec can be written.</div>
+
+    <div class="q">
+      <label class="q-lbl">Who are the primary users?</label>
+      <p class="q-help">Select all that apply. This shapes permissions, UX patterns, and auth decisions.</p>
+      <div class="chips">
+        ${[
+          {v:'public',   label:'Consumers / general public'},
+          {v:'smb',      label:'Small business owners'},
+          {v:'freelance',label:'Freelancers / solopreneurs'},
+          {v:'teams',    label:'Teams inside a company'},
+          {v:'devs',     label:'Developers / technical users'},
+          {v:'creators', label:'Creators / content makers'},
+          {v:'solo',     label:'Just me — single user only'},
+        ].map(o=>chip('userTypes',o.v,o.label,true)).join('')}
+      </div>
+    </div>
+
+    ${field('userDetail','Add any detail that makes your user more specific',
+      'Optional — leave blank if the above selection is specific enough.',
+      'Yoga studio owners who currently manage everything in WhatsApp groups.',2,true)}
+
+    <div class="q">
+      <label class="q-lbl">What is the core problem you want to fix?</label>
+      <p class="q-help">Pick the one that matches most closely. This shapes the architecture of the whole product.</p>
+      <div class="opt-cards">
+        ${PROBLEMS.map(p=>optCard('problem',p.v,p.icon,p.label,p.desc)).join('')}
+      </div>
+      ${hasProbOther ? `<div style="margin-top:10px">${field('problemOther','Describe the problem','','',' 2',false)}</div>` : ''}
+    </div>
+
+    ${nav()}
+  </div>`;
+}
+
+function renderActions() {
+  const hasMultiple = (d.actions||[]).length > 1;
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 3 of 7</div>
+    <div class="ph-title">Primary actions</div>
+    <div class="ph-desc">What are the main things users do in your product? Select up to three, in priority order — tap to add, tap again to remove.</div>
+
+    <div class="q">
+      <label class="q-lbl">What do users mainly do?</label>
+      <p class="q-help">Select up to 3. The order you select them becomes their priority ranking — first selected = most important.</p>
+      <div class="chips">
+        ${ACTIONS.map(a=>`<button class="chip${(d.actions||[]).includes(a.v)?' ranked':''}"
+          onclick="toggleAction('${a.v}')"
+          title="${a.desc}"
+          >${a.label}${(d.actions||[]).includes(a.v)?`<span class="chip-rank">${(d.actions||[]).indexOf(a.v)+1}</span>`:''}</button>`).join('')}
+      </div>
+      ${hasMultiple ? `<p style="font-size:13px;color:var(--ink-faint);margin-top:8px;">The number shows the priority order. Tap to deselect and reorder.</p>` : ''}
+    </div>
+
+    ${nav()}
+  </div>`;
+}
+
+function toggleAction(val) {
+  if (!d.actions) d.actions = [];
+  const i = d.actions.indexOf(val);
+  if (i >= 0) d.actions.splice(i,1);
+  else if (d.actions.length < 3) d.actions.push(val);
+  render();
+}
+
+function renderFeatures() {
+  const cat = d.category || 'saas';
+  const primaryTiles = CATEGORY_TILES[cat] || [];
+  const secondaryTiles = SECONDARY_TILES.filter(t => !primaryTiles.find(p=>p.v===t.v));
+  const preOut = (OUTSCOPE_BY_CAT[cat]||[]);
+
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 4 of 7</div>
+    <div class="ph-title">Features & scope</div>
+    <div class="ph-desc">Select what your product needs to do in version 1. Be honest about what can wait.</div>
+
+    <div class="q">
+      <label class="q-lbl">What does your product need to do in v1?</label>
+      <p class="q-help">Tap to include. Primary tiles are typical for your product type. Secondary tiles are extras.</p>
+
+      <div class="tile-section">
+        <div class="tile-section-lbl">Universal</div>
+        <div class="tile-grid">${UNIVERSAL_TILES.map(t=>tile('features',t.v,t.icon,t.label)).join('')}</div>
+      </div>
+
+      ${primaryTiles.length ? `<div class="tile-section">
+        <div class="tile-section-lbl">For your product type</div>
+        <div class="tile-grid">${primaryTiles.map(t=>tile('features',t.v,t.icon,t.label)).join('')}</div>
+      </div>` : ''}
+
+      ${secondaryTiles.length ? `<div class="tile-section">
+        <div class="tile-section-lbl">Also available</div>
+        <div class="tile-grid">${secondaryTiles.map(t=>tile('features',t.v,t.icon,t.label,true)).join('')}</div>
+      </div>` : ''}
+
+      <div style="margin-top:12px">
+        <input type="text" placeholder="Anything else? Describe a feature not listed above" value="${d.featuresOther||''}" oninput="d.featuresOther=this.value">
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">What are you deliberately leaving out of v1?</label>
+      <p class="q-help">This is just as important as what's in — it tells your AI agent what NOT to build. Common omissions are pre-selected based on your product type.</p>
+      <div class="chips">${OUTSCOPE_TILES.map(t=>chip('outScope',t.v,t.label,true)).join('')}</div>
+      <div style="margin-top:10px">
+        <input type="text" placeholder="Anything else to exclude?" value="${d.outScopeOther||''}" oninput="d.outScopeOther=this.value">
+      </div>
+    </div>
+
+    ${field('productDesc_phase','Is there anything else about what the product should do that we haven\'t covered?',
+      'Optional — leave blank if the tiles above cover it.','',' 2',true)}
+
+    ${nav()}
+  </div>`;
+}
+
+// Pre-populate out-of-scope based on category when entering this phase
+function prePopulateOutScope() {
+  const cat = d.category || 'saas';
+  const preOut = OUTSCOPE_BY_CAT[cat] || [];
+  if (d.outScope.length === 0) {
+    d.outScope = [...preOut];
+  }
+}
+
+function renderContext() {
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 5 of 7</div>
+    <div class="ph-title">Context & access</div>
+    <div class="ph-desc">A few quick decisions that shape the whole architecture — auth, data privacy, and access control.</div>
+
+    <div class="q">
+      <label class="q-lbl">Who will use this product?</label>
+      <p class="q-help">This determines how sign-up, data isolation, and access control are built.</p>
+      <div class="opt-cards">
+        ${optCard('context','public','◎','Anyone — it\'s a public product','Anyone can sign up and use it. Standard registration flow.')}
+        ${optCard('context','internal','◉','Just me or my team','Only specific people will have access. Invite-only or no sign-up.')}
+        ${optCard('context','hybrid','◈','Both — public users and a private admin area','Users access the product; you manage it from behind the scenes.')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">How would you describe your data?</label>
+      <p class="q-help">This helps choose the right database. Don't worry about technical terms — just pick the description that fits.</p>
+      <div class="opt-cards">
+        ${optCard('dataType','structured','→','Simple and structured','Fits neatly into rows and columns, like a spreadsheet. Every item has the same fields.')}
+        ${optCard('dataType','flexible','→','Flexible and varied','Different items have different fields. Not every record looks the same.')}
+        ${optCard('dataType','media','→','Mostly files and media','The main thing stored is images, videos, or documents.')}
+        ${optCard('dataType','simple','→','Very simple — just a few things','A handful of settings or records. Not much data to manage.')}
+        ${optCard('dataType','unsure','→','Not sure — decide for me','Claude will choose based on the feature list.')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">How will users log in?</label>
+      <p class="q-help">Select all that apply. If you selected "no login needed" above, skip this.</p>
+      <div class="chips">
+        ${[
+          {v:'emailpass', label:'Email and password'},
+          {v:'google',    label:'Sign in with Google'},
+          {v:'github',    label:'Sign in with GitHub'},
+          {v:'magic',     label:'Magic link — no password needed'},
+          {v:'none',      label:'No login needed'},
+          {v:'invite',    label:'Invite only'},
+        ].map(o=>chip('authMethods',o.v,o.label,true)).join('')}
+      </div>
+    </div>
+
+    ${field('hostingNotes','Are you already using a hosting service for another project or website?',
+      'Optional. Even if you\'re not sure it\'s relevant, mention it — Claude will work out whether it affects your new project.',
+      'I already have a site on Wix, or: My company uses AWS.',2,true)}
+
+    ${nav()}
+  </div>`;
+}
+
+function renderIntegrationsDesign() {
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 6 of 7</div>
+    <div class="ph-title">Integrations & design direction</div>
+    <div class="ph-desc">What your product connects to, and how it should look and feel.</div>
+
+    <div class="q">
+      <label class="q-lbl">Does your product need to do any of these?</label>
+      <p class="q-help">Each selection maps to a specific service — Claude will name the tool and include it in the spec.</p>
+      <div class="chips">
+        ${[
+          {v:'payments',  label:'Take payments'},
+          {v:'emails',    label:'Send emails — confirmations, reminders'},
+          {v:'sms',       label:'Send SMS text messages'},
+          {v:'files',     label:'Store and serve files — images, videos, documents'},
+          {v:'maps',      label:'Show maps or locations'},
+          {v:'gcal',      label:'Sync with a calendar'},
+          {v:'analytics', label:'Track how people use the product'},
+        ].map(o=>chip('integrations',o.v,o.label,true)).join('')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">Are you already using tools you want to connect with?<span class="q-opt">Optional</span></label>
+      <p class="q-help">CRMs, communication tools, email platforms — if you need your product to talk to them, select them here.</p>
+      <div class="chips">${EXISTING_TOOLS.map(t=>chip('existingTools',t.v,`${t.label} (${t.cat})`,true)).join('')}</div>
+      <div style="margin-top:10px">
+        <input type="text" placeholder="Any other tool not listed?" value="${d.existingToolsOther||''}" oninput="d.existingToolsOther=this.value">
+      </div>
+    </div>
+
+    ${/* V1.1 — Replace the four chip questions below with full visual selectors:
+         - Colour mood: full palette swatches showing 4-5 actual colours per option
+         - Font style: real font renderings — headline + body text sample in each typeface
+         - Corner style: three rendered UI card examples side by side
+         - Density: three versions of the same screen at different density levels
+    */`
+    <div class="q" style="border: 1px dashed var(--border-mid);">
+      <label class="q-lbl">How should it look and feel? <span class="q-opt">V1.1 — visual upgrade coming</span></label>
+      <p class="q-help">These choices give your AI agent a design direction — so it builds something intentional rather than generic. Visual selectors with palette swatches and font previews are coming in V1.1.</p>
+
+      <p style="font-size:13px;font-weight:500;margin:1rem 0 6px;">Colour mood</p>
+      <div class="chips">
+        ${[
+          {v:'dark',     label:'Dark & minimal'},
+          {v:'light',    label:'Light & clean'},
+          {v:'bold',     label:'Bold & colourful'},
+          {v:'warm',     label:'Warm & earthy'},
+          {v:'cool',     label:'Cool & professional'},
+          {v:'playful',  label:'Playful & bright'},
+        ].map(o=>chip('colorMood',o.v,o.label,false)).join('')}
+      </div>
+
+      <p style="font-size:13px;font-weight:500;margin:1rem 0 6px;">Font style</p>
+      <div class="chips">
+        ${[
+          {v:'modern',    label:'Modern & clean'},
+          {v:'editorial', label:'Editorial & refined'},
+          {v:'technical', label:'Technical & precise'},
+          {v:'friendly',  label:'Friendly & approachable'},
+          {v:'strong',    label:'Strong & confident'},
+        ].map(o=>chip('fontStyle',o.v,o.label,false)).join('')}
+      </div>
+
+      <p style="font-size:13px;font-weight:500;margin:1rem 0 6px;">Corner style</p>
+      <div class="chips">
+        ${[
+          {v:'sharp',   label:'Sharp — no rounding'},
+          {v:'medium',  label:'Slightly rounded'},
+          {v:'round',   label:'Very rounded'},
+        ].map(o=>chip('cornerStyle',o.v,o.label,false)).join('')}
+      </div>
+
+      <p style="font-size:13px;font-weight:500;margin:1rem 0 6px;">Density</p>
+      <div class="chips">
+        ${[
+          {v:'spacious', label:'Spacious — lots of breathing room'},
+          {v:'balanced', label:'Balanced — standard spacing'},
+          {v:'compact',  label:'Compact — information-dense'},
+        ].map(o=>chip('density',o.v,o.label,false)).join('')}
+      </div>
+    </div>`}
+
+    ${nav()}
+  </div>`;
+}
+
+function renderPerfA11y() {
+  return `<div class="phase">
+    <div class="ph-eye">New project — Step 7 of 7</div>
+    <div class="ph-title">Performance & accessibility</div>
+    <div class="ph-desc">Two quick questions that shape technical constraints across the whole spec.</div>
+
+    <div class="q">
+      <label class="q-lbl">Performance expectations</label>
+      <p class="q-help">Think about your users and what they'd experience. Most products need standard performance — only choose higher if it's genuinely important to the product experience.</p>
+      <div class="opt-cards">
+        ${optCard('performance','standard','○','Standard — normal web speed is fine','No special requirements. The agent will follow good practices by default.')}
+        ${optCard('performance','fast','◎','Needs to be fast — speed matters to the experience','Slow pages would noticeably hurt the product. The agent will add specific optimisations.')}
+        ${optCard('performance','scale','◈','Handles lots of people — may get high traffic','Could get a significant traffic spike or many concurrent users. Scalability notes added.')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">Accessibility</label>
+      <p class="q-help">Accessibility means making sure people with disabilities can use your product. WCAG AA is the standard most products aim for.</p>
+      <div class="opt-cards">
+        ${optCard('accessibility','standard','○','No specific requirement','Standard semantic HTML and keyboard navigation. Good practice by default.')}
+        ${optCard('accessibility','aa','◎','Important — some users may have disabilities','WCAG AA specified throughout the spec.')}
+        ${optCard('accessibility','aaa','◈','Required — legally required or core commitment','WCAG AA strict, flagged at every feature.')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">How big should each build phase be?</label>
+      <p class="q-help">This controls how Claude groups features into phases on the roadmap. Smaller phases are easier to review but take longer. Bigger chunks move faster but are harder to manage.</p>
+      <div class="chips">
+        ${[
+          {v:'small',     label:'Small steps — one feature per phase'},
+          {v:'balanced',  label:'Balanced — related features grouped'},
+          {v:'big',       label:'Big chunks — everything together'},
+        ].map(o=>chip('phaseSize',o.v,o.label,false)).join('')}
+      </div>
+    </div>
+
+    ${nav('← Back','See my prompt →')}
+  </div>`;
+}
+
+// ── RETROFIT ──
+
+function renderRetroState() {
+  return `<div class="phase">
+    <div class="ph-eye">Existing project — Step 1 of 3</div>
+    <div class="ph-title">What exists</div>
+    <div class="ph-desc">Describe the project as it stands today. Be honest — the spec is most useful when it reflects reality.</div>
+
+    ${field('retProjectDesc','What does this project do, and what state is it in?',
+      'Describe it plainly. Is it a prototype? Live? Half-built?',
+      'A booking tool for yoga studios. The calendar works and people can book classes, but payments are broken and there\'s no way to cancel.',4)}
+
+    ${field('retTech','What tech is it built on?',
+      'Describe it however you know it — framework name, tools used, anything you\'re aware of.',
+      'Built with Next.js and Supabase. Payments through Stripe. Hosted on Vercel.',3,true)}
+
+    <div class="q">
+      <label class="q-lbl">How would you describe the project\'s health?</label>
+      <p class="q-help">Pick the option that fits best right now.</p>
+      <div class="opt-cards">
+        ${optCard('retHealth','good','◎','Mostly working — just needs more features','The core product functions. You want to build on top of it.')}
+        ${optCard('retHealth','partial','◈','Partially working — some things are broken','Key parts function but there are known problems to fix.')}
+        ${optCard('retHealth','proto','◇','Early prototype — significant parts are missing','It\'s a sketch of the product, not a working version.')}
+        ${optCard('retHealth','live','◉','Live with real users — needs to keep working','Real people use it. Changes must not break existing functionality.')}
+      </div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">What problems are you aware of?</label>
+      <p class="q-help">Select all that apply. These become flagged as technical debt in the spec.</p>
+      <div class="chips">
+        ${[
+          {v:'breaks',    label:'Things break when I change something'},
+          {v:'hardcoded', label:'Only works for one specific case — hardcoded'},
+          {v:'inconsist', label:'Design is inconsistent across different parts'},
+          {v:'slow',      label:'It\'s slow to load or respond'},
+          {v:'notests',   label:'No tests — afraid to change things'},
+          {v:'lost',      label:'I\'ve lost track of what the code does'},
+          {v:'dbwrong',   label:'The database structure feels wrong'},
+        ].map(o=>chip('retProblems',o.v,o.label,true)).join('')}
+      </div>
+    </div>
+
+    ${nav()}
+  </div>`;
+}
+
+function renderRetroWrong() {
+  return `<div class="phase">
+    <div class="ph-eye">Existing project — Step 2 of 3</div>
+    <div class="ph-title">What's working and what's not</div>
+    <div class="ph-desc">Being specific here is what lets the agent fix things without breaking what already works.</div>
+
+    ${field('retWorks','What features already work and should be left alone?',
+      'List the parts that work correctly. The spec treats these as done so the agent doesn\'t touch them.',
+      'Class calendar, booking flow, email confirmations, studio admin login.',3)}
+
+    ${field('retBroken','What\'s broken or incomplete?',
+      'List specific things that don\'t work, partially work, or behave unexpectedly.',
+      'Stripe payments fail silently — no error shown. Cancellations don\'t update the calendar. Mobile layout broken on the booking page.',4)}
+
+    ${field('retRegrets','Any early decisions that now feel like mistakes?',
+      'You don\'t need to know the technical fix — just describe the problem it causes.',
+      'Everything is in one giant file and changing one thing breaks something else. Or: I hardcoded the studio name so it only works for one studio.',4,true)}
+
+    ${nav()}
+  </div>`;
+}
+
+function renderRetroNext() {
+  return `<div class="phase">
+    <div class="ph-eye">Existing project — Step 3 of 3</div>
+    <div class="ph-title">What's next</div>
+    <div class="ph-desc">What you want to add or change. This becomes the roadmap.</div>
+
+    ${field('retNext','What do you most want to add or fix next?',
+      'List 3–5 things in rough priority order. Mix of fixes and new features is fine.',
+      '1. Fix payments. 2. Add cancellations. 3. Let studios manage their own schedule. 4. Client history page.',5)}
+
+    ${field('retOutScope','What are you deliberately leaving out for now?',
+      'What sounds tempting but isn\'t the priority? Keeps the agent focused.',
+      'No multi-language support, no native mobile app, no marketplace for studios.',2,true)}
+
+    ${field('retExistingTools','Any tools or technologies you\'re locked into?',
+      'Things Claude should know about before making technical suggestions.',
+      'Built with Next.js and Supabase. Payments through Stripe. Hosted on Vercel.',2,true)}
+
+    ${nav('← Back','See my prompt →')}
+  </div>`;
+}
+
+// ── FEATURE ONLY ──
+
+function renderFeatDesc() {
+  return `<div class="phase">
+    <div class="ph-eye">Feature spec — Step 1 of 2</div>
+    <div class="ph-title">Describe the feature</div>
+    <div class="ph-desc">Focus on what the user experiences. Not how it works technically — just what they do and see.</div>
+
+    ${sfield('featName','What\'s the name of this feature?',
+      'Keep it simple — this is just a label.',
+      'Cancellation flow, or: Client dashboard, or: Onboarding wizard')}
+
+    ${field('featWhat','What does this feature do?',
+      'Describe it as if explaining to someone who has never seen the product.',
+      'It lets clients cancel a booking they\'ve already made. They get a confirmation email and the slot opens up again for others to book.',3)}
+
+    <div class="q">
+      <label class="q-lbl">Which of these best describes how this feature works?</label>
+      <p class="q-help">Pick the flow pattern that matches closest. This shapes the spec structure.</p>
+      <div class="opt-cards">
+        ${FLOW_PATTERNS.map(f=>optCard('flowPattern',f.v,f.icon,f.label,f.desc)).join('')}
+      </div>
+    </div>
+
+    ${field('featFlow','Walk me through what the user does, step by step.',
+      'Think of it like a short story — what do they click, see, and experience from start to finish?',
+      '1. User goes to their bookings page. 2. Clicks Cancel. 3. A confirmation popup appears. 4. They confirm. 5. They see a Booking cancelled message. 6. They receive a confirmation email.',5)}
+
+    ${nav()}
+  </div>`;
+}
+
+function renderFeatDetails() {
+  return `<div class="phase">
+    <div class="ph-eye">Feature spec — Step 2 of 2</div>
+    <div class="ph-title">Details & edge cases</div>
+    <div class="ph-desc">The specifics that make the difference between a feature that's almost right and one that actually works.</div>
+
+    ${field('featureEdge','What should happen when things go wrong?',
+      'Think about failure cases — what if the user makes a mistake, loses connection, or the system fails?',
+      'If they try to cancel less than 24 hours before the class, show a message saying it\'s too late and give them a phone number.',4)}
+
+    <div class="q">
+      <label class="q-lbl">Which of these situations does this feature need to handle?</label>
+      <p class="q-help">Select all that apply. Claude will write the handling instructions for each one.</p>
+      <div class="chips">${UNIVERSAL_EDGES.map(e=>chip('edgesUniversal',e.v,e.label,true)).join('')}</div>
+    </div>
+
+    <div class="q">
+      <label class="q-lbl">What kind of UI elements does this feature involve?</label>
+      <p class="q-help">This helps Claude ask the right follow-up questions and write the right spec detail.</p>
+      <div class="chips">${COMPONENT_TYPES.map(c=>chip('componentTypes',c.v,c.label,true)).join('')}</div>
+    </div>
+
+    ${field('featSuccess','How will you know this feature is working correctly?',
+      'Describe the simplest test you\'d do to confirm it works.',
+      'I can book a class, then cancel it. The slot disappears from my bookings, I get an email, and the slot shows as available again.',3)}
+
+    ${nav('← Back','See my prompt →')}
+  </div>`;
+}
+
+// ── EXPORT ──
+
+function renderExport() {
+  const summary = buildSummary();
+  const prompt  = buildPrompt(summary);
+  return `<div class="phase">
+    <div class="ph-eye">All done</div>
+    <div class="ph-title">Your answers are ready.</div>
+    <div class="ph-desc">Follow the four steps below to go from these answers to a working spec in your coding agent.</div>
+
+    <div class="exp-steps">
+      <div class="exp-step">
+        <div class="exp-step-num">1</div>
+        <div>
+          <div class="exp-step-title">Set up a Claude Project</div>
+          <div class="exp-step-desc">Go to <a href="https://claude.ai/projects" target="_blank">claude.ai/projects</a> and create a new project named after your product. Download <a href="https://github.com/tiestudio/SpecForge/raw/main/specforge-skill.md" target="_blank">specforge-skill.md</a> from GitHub and upload it to the project. This file stays there permanently and teaches Claude how to run the full spec workflow.</div>
+        </div>
+      </div>
+      <div class="exp-step">
+        <div class="exp-step-num">2</div>
+        <div>
+          <div class="exp-step-title">Copy your first prompt</div>
+          <div class="exp-step-desc">The prompt below includes all your answers. Copy it and paste it as your first message in a new chat inside your Claude Project.</div>
+        </div>
+      </div>
+      <div class="exp-step">
+        <div class="exp-step-num">3</div>
+        <div>
+          <div class="exp-step-title">Claude generates your spec bundle</div>
+          <div class="exp-step-desc">Claude reads your answers, identifies gaps, asks only the follow-up questions that are genuinely needed, then generates <strong>mission.md</strong>, <strong>tech-stack.md</strong>, and <strong>roadmap.md</strong> as drafts for your review. It will also ask which AI coding tool you use and convert the files to the right format for that tool.</div>
+        </div>
+      </div>
+      <div class="exp-step">
+        <div class="exp-step-num">4</div>
+        <div>
+          <div class="exp-step-title">Upload your spec files and start building</div>
+          <div class="exp-step-desc">Upload the approved spec files back to your Claude Project. Drop the coding-agent version into your project root. Then open a new chat in the project and say <strong>"next feature"</strong> whenever you're ready to spec the next thing on your roadmap.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="out-wrap">
+      <div class="out-bar">
+        <span class="out-lbl">Your first prompt — copy and paste into Claude</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="confirm" id="copy-confirm">Copied!</span>
+          <button class="out-copy" onclick="copyPrompt()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy prompt
+          </button>
+        </div>
+      </div>
+      <div class="out-text">${escHtml(prompt)}</div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-back" onclick="prev()">← Back</button>
+      <button class="btn-ghost" onclick="startOver()">Start over</button>
+    </div>
+  </div>`;
+}
+
+// ─── OUTPUT BUILDERS ─────────────────────────────────────────────────────
+
+function buildSummary() {
+  const lines = ['## SpecForge Interview — Compiled Answers', ''];
+
+  if (d.mode === 'greenfield') {
+    const cat  = CATEGORIES.find(c=>c.v===d.category);
+    const prob = PROBLEMS.find(p=>p.v===d.problem);
+    const acts = (d.actions||[]).map(a=>ACTIONS.find(x=>x.v===a)?.label||a);
+
+    // Map feature tile values to human-readable labels
+    const allTiles = [...UNIVERSAL_TILES, ...(CATEGORY_TILES[d.category]||[]), ...SECONDARY_TILES];
+    const featLabels = (d.features||[]).map(v=>allTiles.find(t=>t.v===v)?.label||v);
+    const feats = featLabels.join(', ') + (d.featuresOther ? ', ' + d.featuresOther : '');
+
+    const outs  = (d.outScope||[]).map(v=>OUTSCOPE_TILES.find(t=>t.v===v)?.label||v).join(', ') + (d.outScopeOther?', '+d.outScopeOther:'');
+
+    // Map auth method values to readable labels
+    const authLabels = {
+      emailpass:'Email and password', google:'Sign in with Google',
+      github:'Sign in with GitHub', magic:'Magic link',
+      none:'No login needed', invite:'Invite only'
+    };
+    const auths = (d.authMethods||[]).map(v=>authLabels[v]||v).join(', ');
+
+    // Map integration values to labels with tool names
+    const intLabels = {
+      payments:'Take payments (→ Stripe)', emails:'Send emails (→ Resend)',
+      sms:'Send SMS (→ Twilio)', files:'Store files (→ Supabase Storage)',
+      maps:'Show maps (→ Mapbox)', gcal:'Calendar sync (→ Google Calendar)',
+      analytics:'Analytics (→ Plausible)'
+    };
+    const ints  = (d.integrations||[]).map(v=>intLabels[v]||v).join(', ');
+    const tools = (d.existingTools||[]).map(v=>EXISTING_TOOLS.find(t=>t.v===v)?.label||v).join(', ') + (d.existingToolsOther?', '+d.existingToolsOther:'');
+
+    // User type labels
+    const userTypeLabels = {
+      public:'Consumers / general public', smb:'Small business owners',
+      freelance:'Freelancers / solopreneurs', teams:'Teams inside a company',
+      devs:'Developers / technical users', creators:'Creators / content makers',
+      solo:'Just me — single user only'
+    };
+    const userTypes = (d.userTypes||[]).map(v=>userTypeLabels[v]||v).join(', ');
+
+    lines.push(
+      `**Mode:** New project (Greenfield)`, '',
+      `### Product`,
+      `Category: ${cat?.label||d.category||'—'}`,
+      `Description: ${d.productDesc||'—'}`,
+      `Additional notes: ${d.productDesc_phase||'—'}`, '',
+      `### Users`,
+      `User types: ${userTypes||'—'}`,
+      `User detail: ${d.userDetail||'—'}`,
+      `Core problem: ${prob?.label||d.problem||'—'}`, '',
+      `### Actions`,
+      `Primary actions (ranked): ${acts.join(' → ')||'—'}`, '',
+      `### Features`,
+      `Included: ${feats||'—'}`,
+      `Out of scope: ${outs||'—'}`, '',
+      `### Context`,
+      `Who uses it: ${d.context||'—'}`,
+      `Data type: ${d.dataType||'—'}`,
+      `Authentication: ${auths||'—'}`,
+      `Hosting notes: ${d.hostingNotes||'—'}`, '',
+      `### Integrations`,
+      `Functional: ${ints||'—'}`,
+      `Existing tools: ${tools||'—'}`, '',
+      `### Design Direction`,
+      `Colour mood: ${d.colorMood||'—'}`,
+      `Font style: ${d.fontStyle||'—'}`,
+      `Corner style: ${d.cornerStyle||'—'}`,
+      `Density: ${d.density||'—'}`, '',
+      `### Technical`,
+      `Performance: ${d.performance||'—'}`,
+      `Accessibility: ${d.accessibility||'—'}`,
+      `Phase size: ${d.phaseSize||'—'}`,
+    );
+  }
+
+  else if (d.mode === 'retrofit') {
+    const probs = (d.retProblems||[]).join(', ');
+    lines.push(
+      `**Mode:** Existing project (Retrofit)`, '',
+      `### Current State`,
+      `What it does: ${d.retProjectDesc||'—'}`,
+      `Tech: ${d.retTech||'—'}`,
+      `Health: ${d.retHealth||'—'}`,
+      `Problems: ${probs||'—'}`, '',
+      `### What Exists`,
+      `What works: ${d.retWorks||'—'}`,
+      `What's broken: ${d.retBroken||'—'}`,
+      `Early mistakes: ${d.retRegrets||'—'}`, '',
+      `### What's Next`,
+      `Next features or fixes: ${d.retNext||'—'}`,
+      `Out of scope: ${d.retOutScope||'—'}`,
+      `Existing tools / constraints: ${d.retExistingTools||'—'}`,
+    );
+  }
+
+  else if (d.mode === 'feature') {
+    const flow  = FLOW_PATTERNS.find(f=>f.v===d.flowPattern);
+    const comps = (d.componentTypes||[]).map(v=>COMPONENT_TYPES.find(c=>c.v===v)?.label||v).join(', ');
+    const edges = (d.edgesUniversal||[]).map(v=>UNIVERSAL_EDGES.find(e=>e.v===v)?.label||v).join(', ');
+    lines.push(
+      `**Mode:** Feature spec`, '',
+      `### Feature`,
+      `Name: ${d.featName||'—'}`,
+      `What it does: ${d.featWhat||'—'}`,
+      `Flow pattern: ${flow?.label||'—'}`,
+      `User flow: ${d.featFlow||'—'}`, '',
+      `### Details`,
+      `Error cases: ${d.featureEdge||'—'}`,
+      `Edge cases: ${edges||'—'}`,
+      `UI elements: ${comps||'—'}`,
+      `How to verify: ${d.featSuccess||'—'}`,
+    );
+  }
+
+  return lines.join('\n');
+}
+
+function buildPrompt(summary) {
+  return `I've filled in the SpecForge interview form. Please read my answers, identify any gaps or things worth clarifying, ask only the follow-up questions that are genuinely needed, then generate my full spec bundle.
+
+${summary}`;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────
+
+function next() {
+  const phases = getPhases();
+  if (step === 3 && d.mode === 'greenfield') prePopulateOutScope();
+  if (step < phases.length - 1) { step++; render(); window.scrollTo(0,0); }
+}
+
+function prev() {
+  if (step > 0) { step--; render(); window.scrollTo(0,0); }
+}
+
+function startOver() {
+  step = 0;
+  d = {
+    mode:null, exportTarget:'claudecode',
+    category:null, categoryOther:'',
+    productDesc:'', userTypes:[], userDetail:'',
+    problem:null, problemOther:'',
+    actions:[], primaryAction:null,
+    features:[], featuresOther:'',
+    outScope:[], outScopeOther:'',
+    context:null, dataType:null, authMethods:[],
+    hostingNotes:'',
+    integrations:[], existingTools:[], existingToolsOther:'',
+    colorMood:null, fontStyle:null, cornerStyle:null, density:null,
+    performance:null, accessibility:null, phaseSize:null,
+    retProjectDesc:'', retTech:'', retHealth:null, retProblems:[],
+    retWorks:'', retBroken:'', retRegrets:'',
+    retNext:'', retOutScope:'', retExistingTools:'',
+    featName:'', featWhat:'', featFlow:'',
+    flowPattern:null, uiStates:[], edgesUniversal:[], edgesFeature:[],
+    componentTypes:[], featSuccess:'', featureEdge:'',
+  };
+  render();
+  window.scrollTo(0,0);
+}
+
+function copyPrompt() {
+  const prompt = buildPrompt(buildSummary());
+  navigator.clipboard.writeText(prompt).then(() => {
+    const el = document.getElementById('copy-confirm');
+    if (el) { el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),2000); }
+  }).catch(()=>{});
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+
+function render() {
+  const phases = getPhases();
+  const renderer = phases[step];
+  document.getElementById('root').innerHTML = renderer ? renderer() : '';
+  progress();
+}
+
+render();
+</script>
+</body>
+</html>
